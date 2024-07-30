@@ -1,3 +1,9 @@
+### Summary About the Project
+
+The Daily Diet API is a RESTful API that allows users to register their daily meals and track their progress towards a healthy diet. The API provides endpoints for creating, retrieving, updating, and deleting meals, as well as retrieving statistics about the user's diet.
+
+### Daily Diet API Requirements
+
 # RF
 
 - [ ] Deve ser possível criar um usuário
