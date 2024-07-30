@@ -1,13 +1,10 @@
 import { app } from "./app";
-
-app.get("/", () => {
-  return "Hello World!";
-});
+import { env } from "./env/index";
 
 app
   .listen({
-    port: 3333,
+    port: env.PORT,
   })
   .then(() => {
-    console.log("Server listening on port 3333");
+    console.log(`Server listening on port ${env.PORT}`);
   });
