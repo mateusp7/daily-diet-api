@@ -6,7 +6,8 @@ The Daily Diet API is a RESTful API that allows users to register their daily me
 
 ### RF
 
-- [ ] Deve ser possível criar um usuário
+- [X] Deve ser possível criar um usuário
+- [X] Deve ser possível recuperar um usuário por ID
 - [ ] Deve ser possível identificar um usuário entre as requisições
 - [ ] Deve ser possível registrar uma refeição feita, com as seguintes informações:
   - Nome
