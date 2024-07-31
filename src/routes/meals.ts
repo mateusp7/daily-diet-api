@@ -3,6 +3,7 @@ import { knex } from "../database";
 import { formatDate } from "../helpers/format-date";
 import { createMealBodySchema } from "../schemas/meal-create.schema";
 import { getMealByIdSchema } from "../schemas/meal-id.schema";
+import { updateMealBodySchema } from "../schemas/meal-update.schema";
 
 export async function mealsRoutes(app: FastifyInstance) {
   app.addHook("onRequest", async (request, reply) => {
@@ -56,6 +57,58 @@ export async function mealsRoutes(app: FastifyInstance) {
 
     return reply.status(200).send({
       allMeals,
+      status: 200,
+    });
+  });
+
+  app.patch("/:id", async (request, reply) => {
+    // Recuperar os dados do usuário
+    // @ts-ignore
+    const userId = request.user?.id;
+    const { id } = getMealByIdSchema.parse(request.params);
+
+    // Verificar se a refeição pertence ao usuário
+    const meal = await knex("meals")
+      .where({
+        user_id: userId,
+        id,
+      })
+      .select()
+      .first();
+
+    if (!meal) {
+      return reply.status(404).send({
+        message: "Refeição não encontrada!",
+        status: 404,
+      });
+    }
+    // Fazer a atualização da refeição
+    const dataToUpdate = updateMealBodySchema.parse(request.body);
+
+    let formattedDate;
+    let updatedMeal;
+
+    if (dataToUpdate.date_time) {
+      const [datePart, timePart] = dataToUpdate.date_time.split(" ");
+      const [day, month, year] = datePart.split("/").map(Number);
+      const [hours, minutes] = timePart.split(":").map(Number);
+
+      formattedDate = new Date(year, month - 1, day, hours, minutes);
+      updatedMeal = {
+        ...dataToUpdate,
+        date_time: formattedDate,
+      };
+    }
+
+    updatedMeal = {
+      ...dataToUpdate,
+      ...updatedMeal,
+    };
+
+    await knex("meals").where("id", id).update(updatedMeal);
+
+    return reply.status(200).send({
+      message: "Refeição atualizada com sucesso!",
       status: 200,
     });
   });
