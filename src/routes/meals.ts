@@ -61,6 +61,35 @@ export async function mealsRoutes(app: FastifyInstance) {
     });
   });
 
+  app.delete("/:id", async (request, reply) => {
+    const { id } = getMealByIdSchema.parse(request.params);
+
+    // @ts-ignore
+    const userId = request.user?.id;
+
+    const meal = await knex("meals")
+      .where({
+        user_id: userId,
+        id,
+      })
+      .select()
+      .first();
+
+    if (!meal) {
+      return reply.status(404).send({
+        message: "Refeição não encontrada!",
+        status: 404,
+      });
+    }
+
+    await knex("meals").where("id", id).del();
+
+    reply.status(200).send({
+      message: "Refeição excluída com sucesso!",
+      status: 200,
+    });
+  });
+
   app.patch("/:id", async (request, reply) => {
     // Recuperar os dados do usuário
     // @ts-ignore
