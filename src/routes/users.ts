@@ -2,9 +2,9 @@ import bycrypt from "bcrypt";
 import { FastifyInstance } from "fastify";
 import crypto from "node:crypto";
 import { knex } from "../database";
+import { loginUserBodySchema } from "../schemas/user-create.schema";
 import { getUserByIdSchema } from "../schemas/user-id.schema";
 import { createUserBodySchema } from "../schemas/user.schema";
-import { loginUserBodySchema } from "../schemas/user-create.schema";
 
 export async function usersRoutes(app: FastifyInstance) {
   app.get("/", async () => {
@@ -54,7 +54,7 @@ export async function usersRoutes(app: FastifyInstance) {
   app.post("/login", async (request, reply) => {
     // Pegar os dados do usuário
     const { email, password } = loginUserBodySchema.parse(request.body);
-    
+
     // Verificar se o usuário existe no sistema
     const user = await knex("users").where("email", email).first();
 
@@ -87,5 +87,5 @@ export async function usersRoutes(app: FastifyInstance) {
       token,
       status: 200,
     });
-  })
+  });
 }
