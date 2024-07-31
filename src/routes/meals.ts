@@ -76,9 +76,6 @@ export async function mealsRoutes(app: FastifyInstance) {
     //   minute: "2-digit",
     // }).format(formattedDate);
 
-    // console.log("formattedDate", formattedDate);
-    // console.log("INTL formattedDate", teste);
-
     const meal = {
       id: crypto.randomUUID(),
       name,
