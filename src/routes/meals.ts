@@ -56,7 +56,7 @@ export async function mealsRoutes(app: FastifyInstance) {
     }));
 
     return reply.status(200).send({
-      allMeals,
+      meals: allMeals,
       status: 200,
     });
   });
