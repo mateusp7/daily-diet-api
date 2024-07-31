@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { knex } from "../database";
+import { formatDate } from "../helpers/format-date";
 import { createMealBodySchema } from "../schemas/meal-create.schema";
 import { getMealByIdSchema } from "../schemas/meal-id.schema";
 
@@ -28,8 +29,11 @@ export async function mealsRoutes(app: FastifyInstance) {
       .select()
       .first();
 
+    const formattedDate = formatDate(meal.date_time);
+
     const formattedMeal = {
       ...meal,
+      date_time: formattedDate,
       is_diet: meal.is_diet === 1 ? true : false,
     };
 
@@ -46,6 +50,7 @@ export async function mealsRoutes(app: FastifyInstance) {
 
     const allMeals = meals.map((meal) => ({
       ...meal,
+      date_time: formatDate(meal.date_time),
       is_diet: meal.is_diet === 1 ? true : false,
     }));
 
@@ -67,14 +72,6 @@ export async function mealsRoutes(app: FastifyInstance) {
     const [hours, minutes] = timePart.split(":").map(Number);
 
     const formattedDate = new Date(year, month - 1, day, hours, minutes);
-
-    // const teste = new Intl.DateTimeFormat("pt-BR", {
-    //   day: "2-digit",
-    //   month: "2-digit",
-    //   year: "numeric",
-    //   hour: "2-digit",
-    //   minute: "2-digit",
-    // }).format(formattedDate);
 
     const meal = {
       id: crypto.randomUUID(),
