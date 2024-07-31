@@ -1,6 +1,7 @@
-import { FastifyInstance, FastifyRequest } from "fastify";
+import { FastifyInstance } from "fastify";
 import { knex } from "../database";
-import { createMealBodySchema } from "../schemas/meals-create.schema";
+import { createMealBodySchema } from "../schemas/meal-create.schema";
+import { getMealByIdSchema } from "../schemas/meal-id.schema";
 
 export async function mealsRoutes(app: FastifyInstance) {
   app.addHook("onRequest", async (request, reply) => {
@@ -12,6 +13,46 @@ export async function mealsRoutes(app: FastifyInstance) {
         status: 401,
       });
     }
+  });
+
+  app.get("/:id", async (request, reply) => {
+    const { id } = getMealByIdSchema.parse(request.params);
+
+    // @ts-ignore
+    const userId = request.user?.id;
+    const meal = await knex("meals")
+      .where({
+        user_id: userId,
+        id: id,
+      })
+      .select()
+      .first();
+
+    const formattedMeal = {
+      ...meal,
+      is_diet: meal.is_diet === 1 ? true : false,
+    };
+
+    return reply.status(200).send({
+      meal: formattedMeal,
+      status: 200,
+    });
+  });
+
+  app.get("/", async (request, reply) => {
+    // @ts-ignore
+    const userId = request.user?.id;
+    const meals = await knex("meals").where("user_id", userId).select();
+
+    const allMeals = meals.map((meal) => ({
+      ...meal,
+      is_diet: meal.is_diet === 1 ? true : false,
+    }));
+
+    return reply.status(200).send({
+      allMeals,
+      status: 200,
+    });
   });
 
   app.post("/", async (request, reply) => {
@@ -54,13 +95,5 @@ export async function mealsRoutes(app: FastifyInstance) {
       message: "Refeição criada com sucesso!",
       status: 201,
     });
-  });
-
-  app.get("/", async (request: FastifyRequest) => {
-    const meals = await knex("meals").select();
-    // @ts-ignore
-    const userId = request.user?.id;
-
-    return { meals };
   });
 }
