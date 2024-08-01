@@ -1,10 +1,10 @@
 ## Summary About the Project / Resumo sobre o projeto
 
-[PT-BR](readme-pt-br.md)
+[PT-BR]
 
 A API de dieta diária é uma API RESTFul que permite que os usuários registrem suas refeições diárias e obtenham um progresso. A API fornece endpoints para criar, recuperar, atualizar e apagar refeições, bem como recuperar estatísticas sobre o seu dieta.
 
-[EN](readme.md)
+[EN]
 
 The Daily Diet API is a RESTful API that allows users to register their daily meals and track their progress towards a healthy diet. The API provides endpoints for creating, retrieving, updating, and deleting meals, as well as retrieving statistics about the user's diet.
 
