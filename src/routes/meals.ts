@@ -1,4 +1,5 @@
 import { FastifyInstance } from "fastify";
+import { Meal } from "../@types/meal.type";
 import { knex } from "../database";
 import { formatDate } from "../helpers/format-date";
 import { createMealBodySchema } from "../schemas/meal-create.schema";
@@ -40,6 +41,59 @@ export async function mealsRoutes(app: FastifyInstance) {
 
     return reply.status(200).send({
       meal: formattedMeal,
+      status: 200,
+    });
+  });
+
+  app.get("/metrics", async (request, reply) => {
+    // @ts-ignore
+    const userId = request.user?.id;
+    const meals = await knex("meals").where("user_id", userId).select();
+
+    const allMeals = meals.map((meal) => ({
+      ...meal,
+      date_time: formatDate(meal.date_time),
+      is_diet: meal.is_diet === 1 ? true : false,
+    }));
+
+    let currentSequence = 0;
+    let bestSequence = 0;
+    let sequenceMeals: Meal[] = [];
+    const sortedMeals = meals.sort((a, b) => a.date_time - b.date_time);
+
+    sortedMeals.forEach((meal) => {
+      if (meal.is_diet) {
+        currentSequence++;
+        sequenceMeals.push(meal);
+        if (currentSequence > bestSequence) {
+          bestSequence = currentSequence;
+        }
+      } else {
+        sequenceMeals = [];
+        currentSequence = 0;
+      }
+    });
+
+    if (currentSequence > bestSequence) {
+      bestSequence = currentSequence;
+    }
+
+    const metrics = {
+      total_meals: allMeals.length,
+      total_diet_meals: allMeals.filter((meal) => meal.is_diet).length,
+      total_out_diet_meals: allMeals.filter((meal) => !meal.is_diet).length,
+      best_sequence_diet_meals: {
+        quantity: bestSequence,
+        meals: sequenceMeals?.map((meal) => ({
+          ...meal,
+          date_time: formatDate(meal.date_time as Date),
+          is_diet: meal.is_diet === 1 ? true : false,
+        })),
+      },
+    };
+
+    return reply.status(200).send({
+      metrics,
       status: 200,
     });
   });
